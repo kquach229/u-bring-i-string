@@ -37,15 +37,21 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-md items-center p-6">
-      <form onSubmit={onSubmit} className="w-full space-y-3 rounded border bg-white p-6 shadow">
-        <h1 className="text-2xl font-semibold">Admin Login</h1>
-        <p className="text-sm text-gray-600">
+    <div className="mx-auto flex min-h-screen w-full max-w-md items-center p-6 soft-enter">
+      <form
+        onSubmit={onSubmit}
+        className="card-surface w-full space-y-4 rounded-2xl p-6 shadow-lg"
+      >
+        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-blue-600">
+          U Bring I String
+        </p>
+        <h1 className="text-3xl font-bold">Admin Login</h1>
+        <p className="text-sm text-slate-600">
           Sign in to manage jobs, schedule, and status updates.
         </p>
 
         <input
-          className="w-full rounded border p-2"
+          className="w-full rounded-xl border border-slate-300 bg-white p-2.5"
           placeholder="Username"
           value={username}
           onChange={(event) => setUsername(event.target.value)}
@@ -53,14 +59,17 @@ export default function AdminLoginPage() {
         />
         <input
           type="password"
-          className="w-full rounded border p-2"
+          className="w-full rounded-xl border border-slate-300 bg-white p-2.5"
           placeholder="Password"
           value={password}
           onChange={(event) => setPassword(event.target.value)}
           required
         />
 
-        <button disabled={isSubmitting} className="w-full rounded bg-black py-2 text-white">
+        <button
+          disabled={isSubmitting}
+          className="w-full rounded-xl bg-gradient-to-r from-blue-700 to-indigo-600 py-2.5 font-semibold text-white hover:from-blue-600 hover:to-indigo-500"
+        >
           {isSubmitting ? "Signing in..." : "Sign in"}
         </button>
         {message ? <p className="text-sm text-red-700">{message}</p> : null}

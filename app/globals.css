@@ -1,8 +1,11 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f3f7ff;
+  --foreground: #132238;
+  --panel: rgba(255, 255, 255, 0.84);
+  --panel-border: rgba(122, 162, 255, 0.25);
+  --ring: rgba(37, 99, 235, 0.4);
 }
 
 @theme inline {
@@ -12,15 +15,84 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-image:
+    radial-gradient(at 15% 15%, rgba(191, 219, 254, 0.65) 0, transparent 45%),
+    radial-gradient(at 85% 0%, rgba(196, 181, 253, 0.55) 0, transparent 40%),
+    radial-gradient(at 70% 85%, rgba(147, 197, 253, 0.4) 0, transparent 38%);
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+input,
+select,
+textarea,
+button {
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    color 160ms ease,
+    opacity 160ms ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--ring);
+  box-shadow: 0 0 0 4px rgba(147, 197, 253, 0.25);
+}
+
+.card-surface {
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  backdrop-filter: blur(8px);
+  box-shadow:
+    0 8px 30px rgba(30, 64, 175, 0.08),
+    0 2px 8px rgba(15, 23, 42, 0.05);
+}
+
+.soft-enter {
+  animation: fade-slide 360ms ease both;
+}
+
+.lift-on-hover:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 12px 24px rgba(59, 130, 246, 0.15),
+    0 4px 10px rgba(30, 64, 175, 0.12);
+}
+
+.status-pending {
+  background: #fff7ed;
+  color: #9a3412;
+}
+
+.status-progress {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.status-ready {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.status-completed {
+  background: #f5f3ff;
+  color: #6d28d9;
+}
+
+@keyframes fade-slide {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

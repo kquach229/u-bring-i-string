@@ -12,6 +12,18 @@ const STATUS_OPTIONS: Array<{ label: string; value: JobStatus }> = [
   { label: "Completed", value: "COMPLETED" },
 ];
 
+function buttonClasses(value: JobStatus, isActive: boolean): string {
+  const base =
+    "rounded-full border px-3 py-1.5 text-xs font-semibold tracking-wide uppercase disabled:opacity-55";
+  if (isActive) {
+    if (value === "PENDING") return `${base} status-pending border-orange-200`;
+    if (value === "IN_PROGRESS") return `${base} status-progress border-blue-200`;
+    if (value === "READY_FOR_PICKUP") return `${base} status-ready border-emerald-200`;
+    return `${base} status-completed border-violet-200`;
+  }
+  return `${base} bg-white/80 border-slate-200 hover:border-blue-300 hover:bg-blue-50`;
+}
+
 export default function StatusButton({
   id,
   currentStatus,
@@ -49,9 +61,7 @@ export default function StatusButton({
             key={option.value}
             disabled={isSaving || isActive}
             onClick={() => update(option.value)}
-            className={`rounded border px-2 py-1 text-sm ${
-              isActive ? "bg-black text-white" : "bg-white"
-            } disabled:opacity-60`}
+            className={buttonClasses(option.value, isActive)}
           >
             {option.label}
           </button>
