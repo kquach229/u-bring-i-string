@@ -140,6 +140,8 @@ export async function createJob(input: BookingInput): Promise<Job> {
   const job = await prisma.job.create({
     data: {
       ...input,
+      customerEmail: input.customerEmail.trim().toLowerCase(),
+      customerPhone: input.customerPhone.trim(),
       requestedTime: new Date(input.requestedTime),
       status: "PENDING",
       statusTimeline: [{ status: "PENDING", timestamp: now }],
@@ -180,4 +182,16 @@ export async function updateJobStatus(id: string, status: string): Promise<Job> 
 export async function getJobById(id: string): Promise<Job | null> {
   const job = await prisma.job.findUnique({ where: { id } });
   return job ? toAppJob(job) : null;
+}
+
+export async function getCustomerJobs(email: string, phone: string): Promise<Job[]> {
+  const jobs = await prisma.job.findMany({
+    where: {
+      customerEmail: email.trim().toLowerCase(),
+      customerPhone: phone.trim(),
+    },
+    orderBy: { createdAt: "desc" },
+    take: 20,
+  });
+  return jobs.map(toAppJob);
 }

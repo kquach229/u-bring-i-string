@@ -1,4 +1,5 @@
 import StatusButton from "../components/StatusButton";
+import { requireAdminPageSession } from "@/lib/admin-auth";
 import { getDayAvailability, getJobs } from "@/lib/jobs-store";
 import type { JobStatus } from "@/lib/types";
 
@@ -22,6 +23,8 @@ export default async function Dashboard({
 }: {
   searchParams: Promise<{ status?: string; date?: string }>;
 }) {
+  await requireAdminPageSession();
+
   const params = await searchParams;
   const selectedStatus = (params.status ?? "ALL") as "ALL" | JobStatus;
   const selectedDate = params.date ?? new Date().toISOString().slice(0, 10);
@@ -38,9 +41,12 @@ export default async function Dashboard({
     <div className="mx-auto w-full max-w-5xl p-6">
       <div className="mb-4 flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Jobs Dashboard</h1>
-        <p className="text-sm text-gray-600">
-          Today&apos;s workload: {todaysJobs.length}
-        </p>
+        <div className="flex items-center gap-3">
+          <p className="text-sm text-gray-600">Today&apos;s workload: {todaysJobs.length}</p>
+          <form action="/api/admin/logout" method="post">
+            <button className="rounded border px-2 py-1 text-sm">Logout</button>
+          </form>
+        </div>
       </div>
 
       <div className="mb-6 flex flex-wrap gap-2">

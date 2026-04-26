@@ -11,6 +11,7 @@ Tennis racket stringing appointment app built with Next.js.
   - Date/time slot
   - String type + tension
   - Notes
+  - Customer status tracking page (`/track`)
 - Scheduling guardrails:
   - Working hour slots
   - Per-slot capacity limit
@@ -27,6 +28,7 @@ Tennis racket stringing appointment app built with Next.js.
   - Filter by status
   - One-click status updates
   - See daily workload
+  - Admin-only authenticated access
 
 ### Quick start
 
@@ -38,6 +40,13 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) for booking and [http://localhost:3000/dashboard](http://localhost:3000/dashboard) for admin.
+
+### Admin authentication
+
+- Admin login page: `/admin/login`
+- Set `ADMIN_USERNAME`, `ADMIN_PASSWORD`, and `ADMIN_AUTH_SECRET` in `.env.local`
+- `/dashboard` and admin job APIs are protected
+- Customer booking flow remains public on `/`
 
 ### Data and notifications
 

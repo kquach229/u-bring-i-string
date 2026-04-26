@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 import type { JobStatus } from "@/lib/types";
 
@@ -18,11 +19,12 @@ export default function StatusButton({
   id: string;
   currentStatus: JobStatus;
 }) {
+  const router = useRouter();
   const [isSaving, setIsSaving] = useState(false);
 
   const update = async (status: string) => {
     setIsSaving(true);
-    await fetch(`/api/jobs/${id}`, {
+    const response = await fetch(`/api/jobs/${id}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -31,7 +33,11 @@ export default function StatusButton({
     });
 
     setIsSaving(false);
-    location.reload();
+    if (response.status === 401) {
+      router.push("/admin/login");
+      return;
+    }
+    router.refresh();
   };
 
   return (

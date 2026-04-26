@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 
-import { DAILY_BOOKING_LIMIT } from "@/lib/scheduling";
+import { DAILY_BOOKING_LIMIT, generateTimeSlots } from "@/lib/scheduling";
 import type { AppointmentMode, ContactPreference } from "@/lib/types";
 
 type AvailabilityResponse = {
@@ -22,6 +22,7 @@ type AvailabilityResponse = {
 };
 
 export default function BookingPage() {
+  const fallbackSlots = useMemo(() => generateTimeSlots(), []);
   const [form, setForm] = useState({
     customerName: "",
     customerEmail: "",
@@ -37,6 +38,7 @@ export default function BookingPage() {
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoadingAvailability, setIsLoadingAvailability] = useState(false);
+  const [availabilityError, setAvailabilityError] = useState(false);
   const [availability, setAvailability] = useState<AvailabilityResponse["availability"] | null>(
     null,
   );
@@ -45,6 +47,7 @@ export default function BookingPage() {
     async function loadAvailability() {
       if (!form.requestedDate) {
         setAvailability(null);
+        setAvailabilityError(false);
         return;
       }
 
@@ -53,13 +56,16 @@ export default function BookingPage() {
         const response = await fetch(`/api/availability?date=${form.requestedDate}`);
         if (!response.ok) {
           setAvailability(null);
+          setAvailabilityError(true);
           return;
         }
 
         const data = (await response.json()) as AvailabilityResponse;
         setAvailability(data.availability);
+        setAvailabilityError(false);
       } catch {
         setAvailability(null);
+        setAvailabilityError(true);
       } finally {
         setIsLoadingAvailability(false);
       }
@@ -75,6 +81,13 @@ export default function BookingPage() {
     const selected = availability.slots.find((slot) => slot.time === form.requestedTimeSlot);
     return selected?.isFull ?? false;
   }, [availability, form.requestedTimeSlot]);
+
+  const slotOptions = availability?.slots ?? fallbackSlots.map((time) => ({
+    time,
+    booked: 0,
+    remaining: 0,
+    isFull: false,
+  }));
 
   const submit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -216,20 +229,30 @@ export default function BookingPage() {
             value={form.requestedTimeSlot}
             onChange={(e) => setForm({ ...form, requestedTimeSlot: e.target.value })}
             required={form.appointmentMode !== "FLEXIBLE_QUEUE"}
-            disabled={form.appointmentMode === "FLEXIBLE_QUEUE" || isLoadingAvailability}
+            disabled={form.appointmentMode === "FLEXIBLE_QUEUE"}
           >
             <option value="">
               {form.appointmentMode === "FLEXIBLE_QUEUE"
                 ? "Queue mode does not need a slot"
                 : "Select time slot"}
             </option>
-            {(availability?.slots ?? []).map((slot) => (
+            {slotOptions.map((slot) => (
               <option key={slot.time} value={slot.time} disabled={slot.isFull}>
-                {slot.time} ({slot.remaining} left)
+                {availability
+                  ? `${slot.time} (${slot.remaining} left)`
+                  : `${slot.time} (availability loading)`}
               </option>
             ))}
           </select>
         </div>
+        {isLoadingAvailability && form.appointmentMode !== "FLEXIBLE_QUEUE" ? (
+          <p className="text-sm text-gray-600">Loading live slot availability...</p>
+        ) : null}
+        {availabilityError && form.appointmentMode !== "FLEXIBLE_QUEUE" ? (
+          <p className="text-sm text-amber-700">
+            Live availability is unavailable right now. You can still select a time slot and submit.
+          </p>
+        ) : null}
         {availability ? (
           <p className="text-sm text-gray-600">
             {availability.dailyRemaining} of {availability.dailyLimit} jobs remaining for this day.
@@ -267,8 +290,11 @@ export default function BookingPage() {
         {message ? <p className="text-sm">{message}</p> : null}
       </form>
 
-      <a className="mt-4 inline-block text-sm underline" href="/dashboard">
-        Open admin dashboard
+      <a className="mt-4 inline-block text-sm underline" href="/admin/login">
+        Admin sign-in
+      </a>
+      <a className="mt-4 ml-4 inline-block text-sm underline" href="/track">
+        Track my order
       </a>
     </div>
   );

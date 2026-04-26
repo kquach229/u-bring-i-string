@@ -1,13 +1,17 @@
 import { NextResponse } from "next/server";
 
+import { isAdminRequest } from "@/lib/admin-auth";
 import { getJobById, updateJobStatus } from "@/lib/jobs-store";
-import { sendReadyForPickupNotification } from "@/lib/notifications";
 
 type RouteContext = {
   params: Promise<{ id: string }>;
 };
 
-export async function GET(_: Request, context: RouteContext) {
+export async function GET(request: Request, context: RouteContext) {
+  if (!isAdminRequest(request)) {
+    return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+  }
+
   const { id } = await context.params;
   const job = await getJobById(id);
 
@@ -19,6 +23,10 @@ export async function GET(_: Request, context: RouteContext) {
 }
 
 export async function PATCH(request: Request, context: RouteContext) {
+  if (!isAdminRequest(request)) {
+    return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+  }
+
   try {
     const { id } = await context.params;
     const body = (await request.json()) as { status?: string };
@@ -28,9 +36,6 @@ export async function PATCH(request: Request, context: RouteContext) {
     }
 
     const job = await updateJobStatus(id, body.status);
-    if (job.status === "READY_FOR_PICKUP") {
-      await sendReadyForPickupNotification(job);
-    }
 
     return NextResponse.json({ job });
   } catch (error) {
