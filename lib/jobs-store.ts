@@ -1,5 +1,3 @@
-import type { Prisma } from "@prisma/client";
-
 import {
   DAILY_BOOKING_LIMIT,
   SLOT_CAPACITY_LIMIT,
@@ -10,7 +8,7 @@ import {
 import { prisma } from "./prisma";
 import { JOB_STATUSES, type BookingInput, type Job, type JobStatus } from "./types";
 
-type JobRecord = Prisma.JobGetPayload<Record<string, never>>;
+type JobRecord = NonNullable<Awaited<ReturnType<typeof prisma.job.findFirst>>>;
 
 type StatusTimelineEntry = {
   status: JobStatus;
