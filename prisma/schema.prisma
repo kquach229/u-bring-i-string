@@ -1,0 +1,43 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum JobStatus {
+  PENDING
+  IN_PROGRESS
+  READY_FOR_PICKUP
+  COMPLETED
+}
+
+enum ContactPreference {
+  EMAIL
+  PHONE
+}
+
+enum AppointmentMode {
+  DROPOFF
+  PICKUP_REQUEST
+  FLEXIBLE_QUEUE
+}
+
+model Job {
+  id                String            @id @default(cuid())
+  customerName      String
+  customerEmail     String
+  customerPhone     String
+  contactPreference ContactPreference
+  appointmentMode   AppointmentMode
+  requestedTime     DateTime
+  stringType        String
+  tension           String
+  notes             String
+  status            JobStatus         @default(PENDING)
+  statusTimeline    Json
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+}
